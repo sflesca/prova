@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
+@NamedQuery(name = "getClienti", query = "select c from Cliente c")
 public class Cliente {
     private long id;
 

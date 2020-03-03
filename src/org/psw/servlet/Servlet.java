@@ -1,7 +1,10 @@
 package org.psw.servlet;
 
+import org.psw.ejb.ClienteManagerBean;
+import org.psw.model.Cliente;
+
 import javax.annotation.Resource;
-import javax.inject.Inject;
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,22 +24,26 @@ public class Servlet extends HttpServlet {
     @Resource(lookup = "java:/PostgresDS")
     DataSource db;
 
+    @EJB(name="ClienteManagerEJB")
+    ClienteManagerBean cmb;
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection con = null;
+        PrintWriter out = response.getWriter();
         try {
-            Connection con = db.getConnection();
+            con = db.getConnection();
 
             Statement stmt = con.createStatement();
             String query = "select * from gruppo";
             ResultSet rs = stmt.executeQuery(query);
 
-            PrintWriter out = response.getWriter();
             response.setContentType("text/html");
-            out.print("<center><h1>Group Details</h1></center>");
             out.print("<html><body>");
+            out.print("<center><h1>Group Details</h1></center>");
             out.print("<table border=\"1\" cellspacing=10 cellpadding=5>");
             out.print("<tr><th>Group ID</th>");
             out.print("<th>Group Name</th></tr>");
@@ -47,9 +54,31 @@ public class Servlet extends HttpServlet {
                 out.print("<td>" + rs.getString("nome") + "</td>");
                 out.print("</tr>");
             }
-            out.print("</table></body></html>");
+            out.print("</table>");
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            if(con!=null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
+
+        out.print("<table border=\"1\" cellspacing=10 cellpadding=5>");
+        out.print("<tr><th>Group ID</th>");
+        out.print("<th>Group Name</th></tr>");
+
+        for(Cliente c: cmb.getClienti()) {
+            out.print("<tr>");
+            out.print("<td>" + c.getId() + "</td>");
+            out.print("<td>" + c.getNome() + "</td>");
+            out.print("</tr>");
+        }
+        out.print("</table></body></html>");
+
     }
 }
