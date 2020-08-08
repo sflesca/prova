@@ -22,5 +22,5 @@ public class ciccino {
     public List<Cliente> getClichedMessage() {
         // Return some cliched textual content
         return bb.getClienti();
-    }
+    } 
 }
